@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="memberMapper">
+
+	<!-- 마이페이지 기부 현황 확인 -->
+	<resultMap type="projectDTO" id="giveListMap">
+		<id property="projectNo" column="projectNo" />
+		<result property="id" column="id" />
+		<result property="projectSubject" column="projectSubject" />
+		<result property="category1" column="category1" />
+		<result property="category2" column="category2" />
+		<result property="category3" column="category3" />
+		<result property="story" column="story" />
+		<result property="projectImg" column="projectImg" />
+		<result property="projectEnd" column="projectEnd" />
+		<result property="projectRegdate" column="projectRegdate" />
+		<result property="moneyOrItem" column="moneyOrItem" />
+		<result property="totalMoney" column="totalMoney" />
+		<result property="goal" column="goal" />
+		<result property="percent" column="percent" />
+		<result property="givePerson" column="givePerson" />
+	</resultMap>
+	<!-- 마이페이지 Cheer/QnA -->
+	<resultMap type="cheerDTO" id="cheerMap">
+		<id column="cheerNo" property="cheerNo" />
+		<result column="projectNo" property="projectNo" />
+		<result column="id" property="id" />
+		<result column="cheerContent" property="cheerContent" />
+		<result column="cheerRegdate" property="cheerRegdate" />
+		<result column="cheerNotify" property="cheerNotify" />
+		<result column="cheerParentNo" property="cheerParentNo" />
+		<association property="projectDTO" javaType="projectDTO">
+			<id column="projectNo" property="projectNo" />
+			<result column="id" property="id" />
+			<result column="projectSubject" property="projectSubject" />
+		</association>
+	</resultMap>
+
+	<resultMap type="qnADTO" id="qnaMap">
+		<id column="qnaNo" property="qnaNo" />
+		<result column="projectNo" property="projectNo" />
+		<result column="id" property="id" />
+		<result column="qnaContent" property="qnaContent" />
+		<result column="qnaRegdate" property="qnaRegdate" />
+		<result column="qnaNotify" property="qnaNotify" />
+		<result column="qnaParentNo" property="qnaParentNo" />
+	</resultMap>
+	<!-- 즐겨찾기 resultMap -->
+	<resultMap type="favoriteDTO" id="favoriteMap">
+		<id column="favoriteNo" property="favoriteNo" />
+		<result column="id" property="id" />
+		<result column="projectNo" property="projectNo" />
+		<association property="projectDTO" javaType="projectDTO">
+			<id column="projectNo" property="projectNo"></id>
+			<result property="id" column="id" />
+			<result property="projectSubject" column="projectSubject" />
+			<result property="category1" column="category1" />
+			<result property="category2" column="category2" />
+			<result property="category3" column="category3" />
+			<result property="stroy" column="stroy" />
+			<result property="projectImg" column="projectImg" />
+			<result property="projectEnd" column="projectEnd" />
+			<result property="projectRegdate" column="projectRegdate" />
+			<result property="moneyOrItem" column="moneyOrItem" />
+			<result property="totalMoney" column="totalMoney" />
+			<result property="goal" column="goal" />
+			<result property="percent" column="percent" />
+			<result property="givePerson" column="givePerson" />
+		</association>
+	</resultMap>
+
+	<!-- 영수증 출력 map -->
+	<resultMap type="receiptDTO" id="receiptListMap">
+		<id property="giveNo" column="giveNo" />
+		<result property="projectNo" column="projectNo" />
+		<result property="id" column="id" />
+		<result property="giveMoney" column="giveMoney" />
+		<result property="giveRegdate" column="giveRegdate" />
+
+		<association property="project" javaType="projectDTO">
+			<id property="projectNo" column="projectNo" />
+			<result property="id" column="p_id" />
+			<result property="projectSubject" column="projectSubject" />
+			<result property="category1" column="category1" />
+			<result property="category2" column="category2" />
+			<result property="category3" column="category3" />
+			<result property="stroy" column="stroy" />
+			<result property="projectImg" column="projectImg" />
+			<result property="projectEnd" column="projectEnd" />
+			<result property="projectRegdate" column="projectRegdate" />
+			<result property="moneyOrItem" column="moneyOrItem" />
+			<result property="totalMoney" column="totalMoney" />
+			<result property="goal" column="goal" />
+			<result property="percent" column="percent" />
+			<result property="givePerson" column="givePerson" />
+		</association>
+
+		<association property="payment" javaType="paymentDTO">
+			<id property="giveNo" column="giveNo" />
+			<result property="payMethod" column="payMethod" />
+			<result property="payMoney" column="payMoney" />
+			<result property="permissionDate" column="permissionDate" />
+			<result property="receiver" column="receiver" />
+			<result property="addr" column="addr" />
+			<result property="call" column="call" />
+			<result property="memo" column="memo" />
+			<result property="payDate" column="payDate" />
+			<result property="receiptURL" column="receiptURL" />
+		</association>
+
+<!-- 		<collection property="giveItem" ofType="giveItemDTO">
+			<id property="giveItemNo" column="giveItemNo" />
+			<result property="giveNo" column="giveNo" />
+			<result property="giveItemName" column="giveItemName" />
+			<result property="giveItemPrice" column="giveItemPrice" />
+			<result property="giveItemAmount" column="giveItemAmount" />
+		</collection> -->
+	</resultMap>
+
+
+	<!--기업단체 map -->
+	<resultMap type="memberDTO" id="companyMap">
+		<id column="id" property="id" />
+		<result column="pwd" property="pwd" />
+		<result column="name" property="name" />
+		<result column="phone" property="phone" />
+		<result column="email" property="email" />
+		<result column="picture" property="picture" />
+		<result column="accMoney" property="accMoney" />
+		<result column="regDate" property="regDate" />
+		<result column="statusFlag" property="statusFlag" />
+		<result column="dropFlag" property="dropFlag" />
+		<association property="company" javaType="CompanyDTO">
+			<id column="id" property="id"></id>
+			<result property="companyName" column="companyName" />
+			<result property="companyCall" column="companyCall" />
+			<result property="companyAddr" column="companyAddr" />
+			<result property="bank" column="bank" />
+			<result property="account" column="account" />
+
+		</association>
+	</resultMap>
+
+	<sql id="columnName">
+		id, pwd, name, phone, email, picture, accMoney, regDate,
+		statusFlag,
+		dropFlag
+	</sql>
+
+	<!-- 멤버의 기부프로젝트 현황(지성) -->
+	<select id="memberGiveList" resultMap="giveListMap"
+		parameterType="string">
+		select * from
+		tb_project p left join tb_give g
+		on
+		p.projectNo = g.projectNo
+		where g.id=
+		#{_parameter}
+	</select>
+
+	<!-- 회원 등록(memberInsert) -->
+	<insert id="memberInsert" parameterType="memberDTO">
+		insert into tb_member (
+		<include refid="columnName" />
+		)
+		values
+		(#{id},#{pwd},#{name},#{phone},#{email},#{picture},0,sysdate,#{statusFlag},1)
+	</insert>
+
+	<!-- id체크 (memberDuplicatedById) -->
+	<select id="memberIdcheck" parameterType="String"
+		resultType="memberDTO">
+		select * from tb_member
+		where id=#{_parameter}
+	</select>
+
+	<!-- 로그인(memberSelectByIdPwd) -->
+	<select id="memberIdPwdCheck" parameterType="map"
+		resultType="memberDTO">
+		select
+		<include refid="columnName" />
+		from tb_member
+		where id=#{id} and pwd=#{pwd} and dropflag=1
+	</select>
+
+	<!-- 회원정보 수정(비밀번호 제외) -->
+	<update id="memberUpdate" parameterType="memberDTO">
+		update tb_member
+		set
+		name=#{name},
+		phone =#{phone},
+		email = #{email},
+		picture = #{picture}
+		where
+		id = #{id} and pwd = #{pwd}
+	</update>
+
+	<!-- 카카오 및 페이스북 API를 위한 용도 -->
+	<select id="memberIdCheck" parameterType="string"
+		resultType="memberDTO">
+		select * from
+		tb_member
+		where id = #{_parameter}
+	</select>
+
+	<!-- 마이페이지 QnA/Cheer -->
+	<select id="memberSelectByCheer" parameterType="String"
+		resultMap="cheerMap">
+		select c.cheerNo, c.projectNo, c.id, c.cheerContent,
+		c.cheerRegdate,
+		c.cheerNotify, c.cheerParentNo, p.projectSubject
+		from
+		tb_cheer c join tb_project p on c.projectNo = p.projectNo
+		start with
+		c.id = #{_parameter} and c.cheerParentNo is null
+		connect by prior
+		c.cheerNo = c.cheerParentNo
+	</select>
+
+
+	<select id="memberSelectByQnA" parameterType="String"
+		resultMap="qnaMap">
+		select * from tb_qna
+		start with id = #{_parameter} and
+		qnaParentNo is null
+		connect by prior qnaNo = qnaParentNo
+	</select>
+
+	<update id="memberDelete" parameterType="memberDTO">
+		update tb_member set
+		dropflag = 0
+		where id = #{id} and pwd = #{pwd}
+	</update>
+
+	<select id="memberFavorite" parameterType="String"
+		resultMap="favoriteMap">
+		select
+		f.favoriteNo,f.projectNo,p.projectNo,p.id,p.projectSubject,p.projectRegdate,p.percent
+		from tb_favorite f join tb_project p on f.projectNo = p.projectNo
+		<if test="_parameter!=null">
+			where f.id = #{_parameter}
+		</if>
+
+	</select>
+
+	<delete id="deleteFavorite" parameterType="favoriteDTO">
+		delete from
+		tb_favorite where favoriteNo=#{favoriteNo} and id=#{id}
+	</delete>
+
+	<update id="memberUpdateNotify" parameterType="int">
+		update tb_cheer
+		set cheerNotify = 2 where cheerNo = #{_parameter} and cheerNotify = 1
+	</update>
+
+	<update id="memberUpdateQnANotify" parameterType="int">
+		update tb_qna
+		set qnaNotify = 2 where qnaNo = #{_parameter} and qnaNotify = 1
+	</update>
+
+	<!-- 멤버,컴퍼니를 id를 통해 찾기 -->
+	<select id="selectCompanybyId" parameterType="String"
+		resultMap="companyMap">
+		select
+		m.id,m.pwd,m.name,m.phone,m.email,m.picture,c.bank,c.account,c.companyCall,c.companyAddr,c.companyName
+		from tb_member m left join tb_company c on m.id = c.id
+		where m.id = #{id}
+	</select>
+
+	<!-- 영수증 출력 -->
+	<select id="receiptList" resultMap="receiptListMap"
+		parameterType="string">
+		select 
+		g.giveNo,
+		g.projectNo,
+		g.id,
+		g.giveMoney,
+		g.giveRegdate,
+		p.id as p_id, 
+		p.projectSubject,
+		p.projectImg,
+		p.moneyOrItem,
+		m.payDate,
+		m.receiptURL
+		from
+		tb_give g
+		left join tb_project p
+		on
+		g.projectNo = p.projectNo
+		left join tb_payment m
+		on
+		g.giveNo = m.giveNo
+		where g.id=#{_parameter}
+	</select>
+	
+	<select id="cheerAlarm" parameterType="String" resultType="int">
+		select COUNT(*) as cnt from tb_cheer c join tb_member m on c.id=m.id
+		where c.id = #{_parameter} and c.cheerNotify=1
+	</select>
+	
+	<select id="qnaAlarm" parameterType="String" resultType="int">
+		select COUNT(*) as cnt from tb_qna c join tb_member m on c.id=m.id
+		where c.id = #{_parameter} and c.qnaNotify=1
+	</select>
+	
+	<update id="pwdUpdate" parameterType="map">
+		update tb_member
+		set
+		pwd = #{pwdNew}
+		where
+		id = #{id} and pwd = #{pwd}
+	</update>
+</mapper>

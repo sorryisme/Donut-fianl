@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="paymentMapper">
+ 	
+ 	<update id="updateAccMoney" parameterType="map">
+ 		update tb_member set accMoney = accMoney + #{giveMoney} where id = #{id} 
+ 	</update>
+ 	
+ 	<insert id="insertGive" parameterType="giveDTO">
+ 		insert into tb_give(giveNo, projectNo, id, giveMoney, giveRegdate) 
+    	values (seq_give.nextval, #{projectNo}, #{id}, #{giveMoney}, sysdate)
+ 	</insert>
+ 	
+ 	<select id="selectLastGiveNo" resultType="int">
+ 		SELECT LAST_NUMBER FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'SEQ_GIVE'
+ 	</select>
+ 	
+ 	<insert id="insertPayment" parameterType="paymentDTO">
+	 	insert into tb_payment(giveNo, payMethod, payMoney, permissionDate, receiver, addr, call, memo, payDate, receiptURL)
+	    values (#{giveNo}, #{payMethod}, #{payMoney}, TO_DATE(#{permissionDate},'YYYY-MM-DDHH24:MI:SS'),
+	    	 #{receiver}, #{addr}, #{call}, #{memo}, sysdate, #{receiptURL})
+ 	</insert>
+ 	
+ 	<select id="selectProject" parameterType="int" resultType="projectDTO">
+ 		select totalMoney, goal, givePerson from tb_project where projectNo = #{_parameter}
+ 	</select>
+ 	
+ 	<update id="updateAfterPayment" parameterType="map">
+ 		update tb_project set 
+ 			totalMoney=#{projectDTO.totalMoney}+#{giveDTO.giveMoney}, 
+ 			percent=(#{projectDTO.totalMoney}+#{giveDTO.giveMoney})/#{projectDTO.goal}*100, 
+ 			givePerson=#{projectDTO.givePerson} +1
+ 			where projectNo=#{giveDTO.projectNo}
+ 	</update>
+ 	
+ 	<insert id="insertAfterItemPayment" parameterType="map">
+ 		insert into tb_giveItem(giveItemNo, giveNo, giveItemName, giveItemPrice, giveItemAmount)
+    	values(seq_giveItem.nextval, #{giveNo}, #{giveItemDTO.giveItemName}, #{giveItemDTO.giveItemPrice}, #{giveItemDTO.giveItemAmount})
+ 	</insert>
+ 	
+ 	<select id="selectProjectItems" parameterType="int" resultType="itemDTO">
+ 		select * from tb_item where projectNo = #{_parameter}
+ 	</select>
+ 	
+ 	<select id="selectGiveItem" parameterType="map" resultType="giveItemDTO">
+ 		select * from tb_giveItem where giveNo = #{giveNo} and giveItemName = #{itemName}
+ 	</select>
+ 	
+ 	<update id="updateAfterItemPayment" parameterType="map">
+ 		update tb_item
+ 		set itemAmount = #{itemDTO.itemAmount} + #{giveItemDTO.giveItemAmount}
+ 		where projectItemNo = #{itemDTO.projectItemNo}
+ 	</update>
+ 	
+ 	<select id="alreadyPaid" parameterType="String" resultType="int">
+ 		select count(*) from tb_give where id=#{_parameter}
+ 	</select>
+</mapper>
+
+
+
+
+
+
+
+

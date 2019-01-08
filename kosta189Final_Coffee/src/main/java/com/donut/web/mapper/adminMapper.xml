@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="adminMapper">
+
+	<select id="oneDayTotal" parameterType="String" resultType="map">
+		select tb_project.category2 category, sum(tb_give.giveMoney) total 
+		from tb_project join tb_give
+		on tb_project.projectNo = tb_give.projectNo
+		where to_Char(giveRegDate, 'YYYY-MM-DD') = #{_parameter}
+		group by tb_project.category2
+	</select>
+	
+	<select id="selectCompany" resultType="companyListDTO">
+		 select tb_company.id as companyId, tb_company.companyName, tb_project.projectSubject, tb_project.totalMoney, tb_project.percent, tb_project.projectEnd, tb_member.dropFlag
+		 from tb_project 
+		 right outer join tb_member
+		 on tb_project.id = tb_member.id
+		 left outer join tb_company
+		 on tb_member.id = tb_company.id
+		 where statusFlag = 2
+		 order by tb_member.regDate	
+	</select>
+	
+	<select id="selectMember" resultType="memberListDTO">
+		 select tb_member.id as memberId, tb_member.name as memberName, tb_project.projectSubject, tb_give.giveMoney, tb_member.dropFlag
+		 from tb_member
+		 left outer join tb_give
+		 on tb_member.id = tb_give.id
+		 left outer join tb_project
+		 on tb_give.projectNo = tb_project.projectNo
+		 where statusFlag = 1
+		 order by tb_member.regDate
+	</select>
+	
+	<update id="updateDropFlag" parameterType="String">
+		update tb_member set dropFlag = 0 where id = #{_parameter}
+	</update>
+	
+	<select id="selectToday" resultType="int">
+		select sum(giveMoney) from tb_give where trunc(giveRegDate)=trunc(sysdate)
+	</select>
+
+	<select id="selectWeek" resultType="int">
+		<![CDATA[
+			select sum(giveMoney) from tb_give where trunc(sysdate-6) <= trunc(giveRegDate)	
+		]]>
+	</select>
+	
+	<select id="selectNewProject" parameterType="int" resultType="int">
+		<![CDATA[
+			select count(*) 
+			from tb_project 
+		 	where trunc(projectRegDate) >= trunc(sysdate-#{_parameter}) and trunc(projectRegDate) < trunc(sysdate-#{_parameter}+1)		
+		]]>
+	</select>
+	
+	<select id="selectNewGive" parameterType="int" resultType="int">
+		<![CDATA[
+			select count(*) 
+			from tb_give 
+		 	where trunc(giveRegDate) >= trunc(sysdate-#{_parameter}) and trunc(giveRegDate) < trunc(sysdate-#{_parameter}+1)		
+		]]>
+	</select>
+	
+</mapper>

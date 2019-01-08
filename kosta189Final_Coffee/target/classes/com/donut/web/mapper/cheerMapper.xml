@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CheerMapper">
+
+
+<resultMap type="cheerDTO" id="userMap">
+  <id column="cheerNo" property="cheerNo"/>
+  <result column="projectNo" property="projectNo"/>
+  <result column="id" property="id"/>
+  <result column="cheerContent" property="cheerContent"/>
+  <result column="cheerRegdate" property="cheerRegdate"/>
+  <result column="cheerNotify" property="cheerNotify"/>
+  <result column="cheerParentNo" property="cheerParentNo"/>
+  <association property="memberDTO" javaType="memberDTO">
+	<id column="id" property="id"/>
+	<result column="picture" property="picture"/>
+  </association>
+  </resultMap>
+
+	<select id="allSelect" parameterType="int" resultMap="userMap">
+	   select c.cheerNo, c.projectNo, c.id, c.cheerContent, c.cheerRegdate, c.cheerNotify, c.cheerParentNo, m.picture
+	   from tb_cheer c join tb_member m
+	   on c.id = m.id
+	   where projectNo = #{_parameter}
+ 	   start with cheerParentNo is null
+	   connect by prior cheerNo = cheerParentNo 
+	</select>
+	
+	<insert id="insert" parameterType="cheerDTO">
+		insert into tb_cheer values(seq_cheer.nextval,#{projectNo},#{id},#{cheerContent},sysdate,0,null)
+	</insert>
+	
+	<insert id="cheerReplyInsert" parameterType="cheerDTO">
+		insert into tb_cheer values(seq_cheer.nextval,#{projectNo},#{id},#{cheerContent},sysdate,0,#{cheerParentNo})
+	</insert>
+ 		<update id="cheerReplyInsertUpdate" parameterType="cheerDTO">
+		update tb_cheer
+		set cheerNotify=1
+		where cheerNo = #{cheerParentNo}
+	</update> 
+	
+	<update id="update" parameterType="cheerDTO">
+		update tb_cheer
+		set cheerContent=#{cheerContent}, cheerRegdate=sysdate
+		where cheerNo = #{cheerNo}
+	</update>
+	
+	<delete id="delete" parameterType="map">
+		delete from tb_cheer 
+		where id=#{id} and cheerNo=#{cheerNo} or cheerParentNo =#{cheerNo}
+	</delete>
+	<update id="deleteUpdate" parameterType="int">
+		update tb_cheer
+		set cheerNotify=0
+		where cheerNo = #{_parameter}
+	</update> 
+
+	<select id="cheerDuplicatedById" parameterType="map" resultMap="userMap">
+	   select *
+	   from tb_cheer
+	   where id=#{id} and projectNo=#{projectNo}
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

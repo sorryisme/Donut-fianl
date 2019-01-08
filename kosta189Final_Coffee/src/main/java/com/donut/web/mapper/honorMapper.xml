@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="honorMapper">
+  
+  <!-- 고액 후원자 레코드 검색 -->
+
+<select id="selectAll" resultType="memberDTO" parameterType="memberDTO">
+
+<![CDATA[
+
+select * 
+from
+	(select picture,name,accMoney,RANK() OVER (ORDER BY accMoney desc) as rk 
+	from tb_member
+	where (accMoney is not null) and (statusFlag=1))
+where rk <= 3
+
+]]>
+
+</select> 
+
+
+<select id="countProject" resultType="String" >
+select count(projectNo) from tb_project
+</select>
+
+<select id="totalGiveMoney" resultType="String" >
+select sum(givemoney) from tb_give
+</select>
+
+</mapper>

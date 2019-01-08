@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="projectMapper">
+
+	<resultMap type="projectDTO" id="readMap">
+		<id property="projectNo" column="projectNo" />
+		<result property="id" column="id" />
+		<result property="projectSubject" column="projectSubject" />
+		<result property="category1" column="category1" />
+		<result property="category2" column="category2" />
+		<result property="category3" column="category3" />
+		<result property="story" column="story" />
+		<result property="projectImg" column="projectImg" />
+		<result property="projectEnd" column="projectEnd" />
+		<result property="projectRegdate" column="projectRegdate" />
+		<result property="moneyOrItem" column="moneyOrItem" />
+		<result property="totalMoney" column="totalMoney" />
+		<result property="goal" column="goal" />
+		<result property="percent" column="percent" />
+		<result property="givePerson" column="givePerson" />
+		<!-- 프로젝트 물품 -->
+		<collection property="item" ofType="itemDTO">
+			<id property="projectItemNo" column="projectItemNo" />
+			<result property="itemName" column="ItemName" />
+			<result property="itemPrice" column="ItemPrice" />
+			<result property="itemAmount" column="itemAmount" />
+			<result property="goalAmount" column="goalAmount" />
+		</collection>
+		<!-- 리워드 -->
+		<collection property="reward" ofType="rewardDTO">
+			<id property="rewardNo" column="rewardNo" />
+			<result property="rewardItem" column="rewardItem" />
+			<result property="condition" column="condition" />
+		</collection>
+	</resultMap>
+	
+
+
+	<insert id="moneyInsert" parameterType="projectDTO">
+		INSERT INTO TB_PROJECT
+		(projectNo,
+		id,
+		projectSubject,
+		category1,
+		category2,
+		category3,
+		story,
+		projectImg,
+		projectEnd,
+		projectRegdate,
+		moneyOrItem,
+		totalMoney,
+		goal,
+		percent,
+		givePerson)
+		VALUES (seq_project.nextval,
+		#{id},
+		#{projectSubject},
+		'금액',
+		#{category2},
+		#{category3},
+		#{story},
+		#{projectImg},
+		#{projectEnd},
+		sysdate,
+		1,
+		0,
+		#{goal},
+		0,
+		0)
+	</insert>
+	
+	<insert id="itemInsert" parameterType="projectDTO">
+		INSERT INTO TB_PROJECT
+		(projectNo,
+		id,
+		projectSubject,
+		category1,
+		category2,
+		category3,
+		story,
+		projectImg,
+		projectEnd,
+		projectRegdate,
+		moneyOrItem,
+		totalMoney,
+		goal,
+		percent,
+		givePerson)
+		VALUES (seq_project.nextval,
+		#{id},
+		#{projectSubject},
+		'물품',
+		#{category2},
+		#{category3},
+		#{story},
+		#{projectImg},
+		#{projectEnd},
+		sysdate,
+		2,
+		0,
+		#{goal},
+		0,
+		0)
+	</insert>
+	
+	<insert id="itemListInsert" parameterType="itemDTO">
+		INSERT INTO TB_ITEM
+		(projectItemNo,projectNo,itemName,itemPrice,itemAmount,goalAmount)
+		VALUES(seq_item.nextval,seq_project.currval,#{itemName},#{itemPrice},#{itemAmount},#{goalAmount})
+	</insert>
+	<insert id="rewardListInsert" parameterType="rewardDTO">
+		INSERT INTO TB_REWARD
+		(rewardNo,projectNo,rewardItem,condition)
+		VALUES(seq_reward.nextval,seq_project.currval,#{rewardItem},#{condition})
+	</insert>
+	
+
+	<select id="projectSelectAll" resultType="projectDTO" parameterType="string">
+		SELECT *
+		FROM tb_project
+		<choose>
+			<when test='_parameter.equals("ing")'>
+			where percent != 100 and projectEnd &gt; sysdate
+			</when>
+			<when test='_parameter.equals("end")'>
+			where (percent = 100)
+			or (projectEnd &lt; sysdate)
+			</when>
+		</choose>
+			ORDER BY projectNo DESC
+	</select>
+
+	<select id="projectSelectByNo" parameterType="int"
+		resultMap="readMap">
+		SELECT *
+		FROM tb_project p left join tb_item i
+		on p.projectNo=i.projectNo
+		left join tb_reward r
+		on p.projectNo=r.projectNo
+		where p.projectNo = ${_parameter}
+	</select>
+
+	<!-- 병현 즐겨찾기 -->
+	<select id="selectFavoriteByNo" resultType="favoriteDTO" parameterType="favoriteDTO">
+		select * from tb_favorite
+		where id=#{id} and projectNo=#{projectNo}
+	</select>
+
+	<insert id="insertFavorite" parameterType="favoriteDTO">
+		insert into tb_favorite(favoriteNo,id,projectNo) values
+		(seq_favorite.nextval,#{id},#{projectNo})
+	</insert>
+
+	<delete id="deleteFavorite" parameterType="favoriteDTO">
+		delete from tb_favorite where id=#{id} and projectNo=#{projectNo}
+	</delete>
+	
+	<select id="projectSelectByNoAndId" parameterType="map" resultType="projectDTO">
+		select * from
+		tb_project
+		where
+		projectNO = #{projectNo} 
+		and 
+		id = #{id}
+	</select>
+	
+	<select id="categoryList" parameterType="projectDTO" resultType="projectDTO">
+	 	SELECT *
+		FROM tb_project
+	 	<trim prefix="where" prefixOverrides="and">
+		 	<if test='!category1.equals("전체")'>
+		 		category1=#{category1}
+		 	</if>
+		 	<if test='!category2.equals("전체")'>
+		 		and category2=#{category2}
+		 	</if>
+		 	<if test='!category3.equals("전체")'>
+		 		and category3=#{category3}
+		 	</if>
+	 	</trim>
+	 </select>
+	
+</mapper>

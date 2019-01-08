@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="qnaMapper">
+    
+    <resultMap type="qnADTO" id="userMap">
+  <id column="qnaNo" property="qnaNo"/>
+  <result column="projectNo" property="projectNo"/>
+  <result column="id" property="id"/>
+  <result column="qnaContent" property="qnaContent"/>
+  <result column="qnaRegdate" property="qnaRegdate"/>
+  <result column="qnaNotify" property="qnaNotify"/>
+  <result column="qnaParentNo" property="qnaParentNo"/>
+  </resultMap>
+
+	<select id="allSelect" parameterType="int" resultMap="userMap">
+	   select *
+	   from tb_QnA
+	   where projectNo = #{_parameter}
+ 	   start with qnaParentNo is null
+	   connect by prior qnaNo = qnaParentNo 
+	</select>
+	
+	<insert id="insert" parameterType="qnADTO">
+		insert into tb_qna values(seq_qna.nextval,#{projectNo},#{id},#{qnaContent},sysdate,0,null)
+	</insert>
+	
+		<insert id="qnaReplyInsert" parameterType="qnADTO">
+		insert into tb_qna values(seq_qna.nextval,#{projectNo},#{id},#{qnaContent},sysdate,0,#{qnaParentNo})
+	</insert>
+ 		<update id="qnaReplyInsertUpdate" parameterType="qnADTO">
+		update tb_qna
+		set qnaNotify=1
+		where qnaNo = #{qnaParentNo}
+	</update> 
+	
+	
+    <update id="update" parameterType="qnADTO">
+		update tb_qna
+		set qnaContent=#{qnaContent}, qnaRegdate=sysdate
+		where qnaNo = #{qnaNo}
+	</update>
+	
+		<delete id="delete" parameterType="map">
+		delete from tb_qna 
+		where id=#{id} and qnaNo=#{qnaNo} or qnaParentNo =#{qnaNo}
+	</delete>
+	<update id="deleteUpdate" parameterType="int">
+		update tb_qna
+		set qnaNotify=0
+		where qnaNo = #{_parameter}
+	</update> 
+    
+</mapper>

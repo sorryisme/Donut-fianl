@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="noticeMapper">
+
+<sql id="columnName">
+	NOTICENO,ID,NOTICETITLE,NOTICECONTENT,NOTICEREGDATE
+</sql>
+
+<!-- 모든레코드 검색 or 글번호에 해당하는 레코드 검색 -->
+
+<select id="selectAll" resultType="noticeDTO">
+   SELECT * FROM (SELECT ROWNUM AS rn, A.* FROM(
+    select noticeNo, id, noticeTitle, noticeContent, noticeRegdate from tb_notice 
+   order by noticeRegdate desc
+      ) A
+   ) WHERE rn BETWEEN #{start} AND #{end}
+</select> 
+
+
+<select id="selectByNo" resultType="noticeDTO" parameterType="string">
+    select noticeNo, id, noticeTitle, noticeContent, noticeRegdate from tb_notice 
+   <where>
+      <if test="_parameter!=null">
+         noticeNo=#{_parameter}
+      </if>
+   </where>
+   order by noticeRegdate desc
+</select>
+
+<select id="countArticle" resultType="int">
+		SELECT COUNT(*) 
+		FROM 
+			tb_notice
+	</select>
+
+
+<!-- 공지사항 등록 -->
+<insert id="noticeInsert" parameterType="noticeDTO">
+  insert into tb_notice(noticeNo, id, noticeTitle, noticeContent, noticeRegdate) 
+  values(seq_notice.nextval, #{id},#{noticeTitle}, #{noticeContent},sysdate)
+</insert>
+
+
+
+ <!-- 공지사항 수정 -->
+ <update id="noticeUpdate" parameterType="noticeDTO">
+    update tb_notice
+    set  noticeTitle=#{noticeTitle}, noticeContent=#{noticeContent}
+    where noticeNo=#{noticeNo} 
+ </update>
+ 
+ 
+ 
+ <!-- 삭제 --> 
+ <delete id="noticeDelete" parameterType="noticeDTO">
+  delete from tb_notice 
+  where noticeNo=#{noticeNo} 
+ </delete>
+
+
+<!-- D id -->
+
+ <select id="noticeSelectByNoAndId" parameterType="map" resultType="noticeDTO">
+ 	select * from
+ 	tb_notice
+ 	where
+ 	noticeNo = #{noticeNo}
+ 	and
+ 	id = #{id}
+ </select>
+
+</mapper>

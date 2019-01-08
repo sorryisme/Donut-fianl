@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="reviewMapper">
+
+
+
+	<select id="reviewSelectByNo" parameterType="int"
+		resultType="reviewDTO">
+		select * from tb_review where projectNo=#{_parameter}
+	</select>
+
+
+	<insert id="reviewInsert" parameterType="reviewDTO">
+		insert into tb_review(projectNo,id,reviewContent,reviewImg,reviewRegdate)
+		values(#{projectNo},#{id},#{reviewContent},#{reviewImg},sysdate)
+	</insert>
+
+	<update id="reviewUpdate" parameterType="reviewDTO">
+		update tb_review set reviewContent=#{reviewContent},reviewImg=#{reviewImg}
+		where projectNo=#{projectNo}
+	</update>
+
+
+
+	<delete id="reviewDelete" parameterType="int">
+		delete from tb_review where projectNo=#{projectNo}
+
+	</delete>
+	
+
+
+
+	<select id="reviewDuplicatedById" parameterType="String">
+		select from	tb_review where id=#{_parameter}
+	</select>
+
+
+
+	<!-- reviewno->projectno로 reviewRead의 역할 reveiwDelete와 다른 쿼리문 id체크가 필요 없는지 -->
+
+
+
+
+
+</mapper>

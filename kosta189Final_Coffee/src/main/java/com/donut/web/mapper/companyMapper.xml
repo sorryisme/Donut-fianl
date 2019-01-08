@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="companyMapper">
+
+	<sql id="colmnName">
+		id, companyName, companyCall, companyAddr, bank, account
+	</sql>
+
+	<!-- 기부단체 회원등록(companyInsert) -->
+	<insert id="companyInsert" parameterType="memberDTO">
+		insert into tb_company(
+		<include refid="colmnName"></include>
+		)
+		values (#{id}, #{company.companyName}, #{company.companyCall},
+		#{company.companyAddr}, #{company.bank}, #{company.account})
+	</insert>
+
+	<!-- 마이페이지 내가 등록한 프로젝트 검색 -->
+	<select id="selectMyProject" parameterType="String" resultType="projectDTO">
+		select * from tb_project where id = #{_parameter} order by projectRegdate desc
+	</select>
+
+	<update id="CompanyDelete" parameterType="memberDTO">
+		update tb_member set
+		dropflag = 0
+		where id = #{id} and pwd = #{pwd}
+	</update>
+
+	<!-- 기부자 -->
+	<resultMap type="memberDTO" id="companyMap">
+		<id column="id" property="id" />
+		<result column="pwd" property="pwd" />
+		<result column="name" property="name" />
+		<result column="phone" property="phone" />
+		<result column="email" property="email" />
+		<result column="picture" property="picture" />
+		<result column="accMoney" property="accMoney" />
+		<result column="regDate" property="regDate" />
+		<result column="statusFlag" property="statusFlag" />
+		<result column="dropFlag" property="dropFlag" />
+		<association property="company" javaType="CompanyDTO">
+			<id column="id" property="id"></id>
+			<result property="companyName" column="companyName" />
+			<result property="companyCall" column="companyCall" />
+			<result property="companyAddr" column="companyAddr" />
+			<result property="bank" column="bank" />
+			<result property="account" column="account" />
+
+		</association>
+	</resultMap>
+
+	<!-- 기부단체 회원수정 -->
+	<update id="companyUpdate" parameterType="memberDTO">
+		update tb_company set
+		companyCall=#{company.companyCall},
+		companyName=#{company.companyName},
+		companyAddr=#{company.companyAddr},
+		bank=#{company.bank},
+		account=#{company.account}
+		where id = #{id}
+	</update>
+	
+	<select id="selectById" parameterType="string" resultType="companyDTO">
+		select * from 
+		tb_company
+		where id = #{_parameter}
+	</select>
+
+
+</mapper>

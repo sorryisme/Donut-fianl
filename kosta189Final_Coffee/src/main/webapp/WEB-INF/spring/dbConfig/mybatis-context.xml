@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+
+    <context:component-scan base-package="com.donut.web"/>
+
+
+    <!-- 외부설정문서(properties파일) 가져오기 -->
+    <beans:bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <beans:property name="locations">
+            <beans:value>/WEB-INF/spring/dbConfig/dbInfo.properties</beans:value>
+        </beans:property>
+    </beans:bean>
+
+    <!-- dataSource 설정  - 파일은 dbConfig/dbinfo.properties에 있음 -->
+    <beans:bean id="dataSource" 
+        class="org.apache.commons.dbcp.BasicDataSource"
+        p:driverClassName="${driverName}" p:url="${url}"
+        p:username="${userName}" p:password="${userPass}"
+        p:maxActive="10" />
+
+    <!-- sqlSessionFactory 생성 -->
+    <beans:bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <beans:property name="dataSource" ref="dataSource" />
+        <beans:property name="mapperLocations" value="classpath:com/donut/web/mapper/*Mapper.xml" />
+		<!-- mapper 폴더에 있는 mapper.xml 파일 등록 , Sqlssesion에서 사용가능하도록 처리-->
+        <beans:property name="typeAliasesPackage" value="com.donut.web.dto" />
+		<!-- typeAlias mapper에서 dto를 바로 사용할 수 있도록 처리(대신 첫글자 소문자)-->
+		<beans:property name="configLocation" value="classpath:config/SqlMapConfig.xml"/>
+		<!-- null 방지 -->
+    </beans:bean>
+
+    <!-- SqlSessionTemplate는 SqlSession의 구현객체로 SqlSession의 모든 기능을 가지고 있다. -->
+    <beans:bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <beans:constructor-arg index="0" ref="sqlSessionFactory" />
+    </beans:bean>
+
+    <!-- Transaction 등록 -->
+    <beans:bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" 
+           id="transactionManager">
+        <beans:property name="dataSource" ref="dataSource"/>
+    </beans:bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans:beans>
+
+

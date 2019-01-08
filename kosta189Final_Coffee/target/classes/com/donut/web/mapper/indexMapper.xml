@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="indexMapper">
+
+	<select id="countProject"  resultType="String">
+		select count(*) from tb_project
+	</select>
+	
+	<select id="countMemberOne"  resultType="String">
+		select count(*) from tb_member where statusFlag=1
+	</select>
+	
+	<select id="countMemberTwo"  resultType="String">
+		select count(*) from tb_member where statusFlag=2
+	</select>
+	
+	<select id="almostDonePercent" resultType="projectDTO">
+		<![CDATA[
+			select *
+			   from (select projectNo, id, projectSubject, category1, category2, category3, story, projectImg, 
+			   		projectEnd, projectRegdate, moneyOrItem, totalMoney, goal, percent, givePerson, 
+	    			rank() over (order by percent desc) as rk from tb_project)
+			   where projectEnd > sysdate and percent != 100 and rownum <= 4
+		]]>
+	</select> 
+	
+	<select id="recentRegister" resultType="projectDTO">
+		<![CDATA[
+			select *
+			   from (select projectNo, id, projectSubject, category1, category2, category3, story, projectImg, 
+			   		projectEnd, projectRegdate, moneyOrItem, totalMoney, goal, percent, givePerson, 
+	    			rank() over (order by projectRegdate desc) as rk from tb_project)
+			   where rownum <= 4
+		]]>
+	</select>
+	
+	<select id="almostDeadline" resultType="projectDTO">
+		<![CDATA[
+			select *
+			   from (select projectNo, id, projectSubject, category1, category2, category3, story, projectImg, 
+			   		projectEnd, projectRegdate, moneyOrItem, totalMoney, goal, percent, givePerson, 
+	    			rank() over (order by projectEnd asc) as rk from tb_project)
+			   where projectEnd - sysdate > 0 and rownum <= 4 
+		]]>
+	</select> 
+	
+	<select id="randomRecommend" resultType="projectDTO">
+		<![CDATA[
+			select * 
+				from (select * from tb_project order by DBMS_RANDOM.RANDOM)
+				where projectEnd - sysdate > 0 and percent != 100 and rownum <= 4
+		]]>
+	</select> 
+    
+	<select id="autoComplete" parameterType="String" resultType="projectDTO">
+		select * from tb_project where projectSubject like '%'||#{_parameter}||'%' order by projectSubject
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
